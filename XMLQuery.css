@@ -1,0 +1,117 @@
+﻿body, input {
+  cursor: default;
+}
+
+body {
+  margin: 0;
+}
+
+  body > ol {
+    padding-top: 1.5em;
+  }
+
+header {
+  background-color: #f1f1f1;
+  border-bottom: 1px solid #bebebe;
+  left: 0;
+  padding: .25em;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+  header.scroll {
+    box-shadow: rgba(0,0,0,0.3) 1px 1px 3px;
+  }
+
+header * {
+  border: 1px solid #bebebe;
+  margin: 0;
+  padding: .25em .5em;
+}
+
+input[type="button"] {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+  input[type="button"]:hover {
+    box-shadow: rgba(0,0,0,0.1) 1px 1px 3px;
+  }
+
+.search {
+  width: 90%;
+}
+
+input[type="file"], input[value="Go"] {
+  display: none;
+}
+
+::-webkit-input-placeholder { color: #aaa }
+:-moz-placeholder           { color: #aaa }
+::-moz-placeholder          { color: #aaa }
+:-ms-input-placeholder      { color: #aaa }
+
+.collapsed .results {
+  display: none;
+}
+
+ins {
+  background-color: #f1f1f1;
+  color: #aaa;
+  display: inline-block;
+  font-family: Consolas, monospace;
+  padding: 0 .2em;
+  text-align: right;
+  text-decoration: none;
+  width: 3em;
+}
+
+.title {
+  color: #aaa;
+}
+
+:checked ~ ins {
+  color: #36c;
+}
+
+:checked ~ .title {
+  color: #222;
+}
+
+.results li {
+  font-family: Consolas, monospace;
+  white-space: pre-wrap;
+}
+
+.results u {
+  background-color: #fee;
+  color: #c00;
+  text-decoration: none;
+}
+
+/*
+.results i {
+  color: silver;
+  font-style: normal;
+}
+
+.results u {
+  color: blue;
+  text-decoration: none;
+}
+*/
+
+.zero {
+  opacity: 0.1;
+}
+
+@media print {
+  .file {
+    margin-bottom: 0.5em;
+  }
+  .file input, .zero {
+    display: none;
+  }
+}

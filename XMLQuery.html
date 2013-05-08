@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>XMLQuery (10+)</title>
+    <meta name="author" content="Jon Casey">
+    <meta name="description" content="Load xml files and query them using XPath or CSS. Only runs on 10+.">
+    <meta property="og:description" content="Query a collection of xml files.">
+    <meta property="og:title" content="XMLQuery">
+    <meta property="og:image" content="XMLQuery.png">
+    <link rel="apple-touch-icon" href="XMLQuery.png">
+    <link href="XMLQuery.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <header class="silver">
+      <input class="files" type="button" value="Files">
+      <input class="search" type="search" placeholder="//page or page" list="hints">
+      <input class="go" type="button" value="Go">
+      <input type="file" multiple accept="text/xml">
+    </header>
+
+    <datalist id="hints">
+      <option value="Window, Activity" label="Shows all CAML and CAMLite Pages">
+      <option value="[BackgroundImage]">
+      <option value="[extensionref]">
+      <option value="[parseError]" label="If XML src failed">
+      <option value="file > Window:nth-of-type(2)" label="Show all variant Pages">
+    </datalist>
+
+    <ol>
+      <li class="file collapsed">
+        <label>
+          <input type="checkbox" checked>
+          <ins>0</ins>
+          <span class="title">This page is designed to run on IE10 or greater. Right-click here to expand results.</span>
+        </label>
+        <ol class="results">
+          <li>&lt;step <i>one</i>="<u>Click the Files button, and select several local XML files.</u>"&gt;</li>
+          <li>&lt;step <i>two</i>="<u>Type in your CSS Selector or XPath query in the input box.</u>"&gt;</li>
+          <li style="height:1000px">&lt;step <i>four</i>="<u>PROFIT!</u>"&gt;</li>
+        </ol>
+      </li>
+    </ol>
+
+    <pre id="log"></pre>
+
+    <script>
+
+      document.querySelector && !function() {
+        var forEach    = Array.prototype.forEach
+          , filesList  = document.querySelector('ol')
+          , template   = document.querySelector('ol li').cloneNode(true)
+          , goButton   = document.querySelector('input[value="Go"]')
+          , fileButton = document.querySelector('input[value="Files"]')
+          , fileInput  = document.querySelector('input[type="file"]')
+          , textInput  = document.querySelector('input[type="search"]')
+          , xmlFiles   = []
+        template.querySelector('ol').innerHTML = ''
+
+        on('change', fileInput, function(e) {
+          if (this.files.length == 0) return // don't change
+          filesList.innerHTML = ''
+          xmlFiles.length = 0
+          forEach.call(this.files, function(file) {
+            if (file.type != 'text/xml') return
+            var reader = new FileReader
+            reader.onerror = function() { log(this.error.name) }
+            reader.onloadend = function() {
+              var xml  = (new DOMParser).parseFromString(this.result, 'text/xml')
+                , org  = xml.querySelector('org')
+                , li   = template.cloneNode(true)
+                , name = org ? org.getAttribute('title') : file.name
+              
+              li.querySelector('span').textContent = name
+              li.querySelector('input').setAttribute('value', xmlFiles.length)
+              filesList.appendChild(li).classList.remove('template')
+              xmlFiles.push(xml)
+            }
+            reader.readAsText(file)
+          })
+        })
+
+        on('keydown', textInput, function(e) {
+          if (e.which == 13) goButton.click()
+        })
+
+        on('click', fileButton, function(e) {
+          fileInput.click()
+        })
+
+        on('click', goButton, function(e) {
+          var query = textInput.value
+            , xpath = /^\//.test(query)
+          if (!query.length) return
+          forEach.call(
+            document.querySelectorAll('input[type="checkbox"]')
+          , function(input) {
+              var label = input.parentNode
+                , li    = label.parentNode
+                , ol    = li.querySelector('ol')
+                , ins   = li.querySelector('ins')
+
+              // dump previous results
+              li.classList.add('zero')
+              ins.textContent = 0
+              ol.innerHTML = ''
+
+              if (input.checked) {
+                var xml = xmlFiles[parseFloat(input.value)]
+                  , nodes = []
+                  , node
+
+                if (xpath) {
+                  var xr = xml.evaluate(query, xml, null, 0, null)
+                  while (node = xr.iterateNext()) nodes.push(node)
+
+                } else {
+                  nodes = xml.querySelectorAll(query)
+                }
+
+                forEach.call(nodes, function(node) {
+                  var text = node.xml
+                    , attr = /\[([\w-_]+)/g
+                    , x = text.indexOf('>')
+                  if (x > -1) text = text.substring(0, x + 1)
+                  text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+                  if (!xpath) {
+                    text = text.replace(/ xmlns="http:\/\/myschemas\.com\/(caml\/manifest|CAML(ite)?)\/2004"/g, '')
+                               .replace(/ xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance"/g, '')
+                               .replace(/ xsi:schemaLocation="[^"]+"/g, '')
+
+                    // todo: better pattern match
+                    if (attr.test(query)) {
+                      query.replace(attr, function(_, w) {
+                        var re = new RegExp('('+ RegExp.escape(w) +')="([^"]+)"', 'g')
+                        text = text.replace(re, function(_, p, v) {
+                          return '<i>'+ p +'</i>="<u>'+ v +'</u>"'
+                        })
+                      })
+                    } else {
+                      text = text.replace(query, function(s) {
+                        return '<u>'+ s +'</u>'
+                      })
+                    }
+                  }
+
+                  ol.appendChild(document.createElement('li')).innerHTML = text
+                  //.appendChild(document.createTextNode(text))
+                })
+
+                ins.textContent = nodes.length
+                li.classList[nodes.length ? 'remove' : 'add']('zero')
+              }
+            }
+          )
+        })
+
+        on('contextmenu', function(e) {
+          var p = e.target
+          while (p) {
+            if (p.type == 'checkbox') {
+              var checked = !p.checked
+              forEach.call(
+                document.querySelectorAll('input[type="checkbox"]')
+              , function(checkbox) { checkbox.checked = checked })
+              e.preventDefault()
+              return false
+            }
+            if (p.classList && p.classList.contains('file')) {
+              p.classList.toggle('collapsed')
+              if (e.ctrlKey) {
+                var isCollapsed = p.classList.contains('collapsed')
+                forEach.call(
+                  document.querySelectorAll('.file')
+                , p.classList.contains('collapsed')
+                  ? function(li) { li.classList.add('collapsed') }
+                  : function(li) { li.classList.remove('collapsed') }
+                )
+              }
+              e.preventDefault()
+            }
+            p = p.parentNode
+          }
+        })
+
+        var header = document.querySelector('header')
+        on('scroll', window, function() {
+          var x = document.body.scrollTop
+               || document.documentElement.scrollTop
+          if (x) header.classList.add('scroll')
+          else header.classList.remove('scroll')
+        })
+
+        function log(text) {
+          document.getElementById('log')
+            .appendChild(document.createElement('div'))
+            .appendChild(document.createTextNode(text))
+        }
+
+        function on(type, selector, listener) {
+          if (arguments.length == 2) {
+            listener = selector
+            selector = document
+          }
+          if (typeof selector == 'string') {
+            selector = document.querySelector(selector)
+          }
+          selector.addEventListener(type, listener, false)
+        }
+
+        if (this.Document && this.Node) {
+          [Document.prototype, Node.prototype].forEach(function(prototype) {
+            Object.defineProperty(prototype, 'xml', {
+              'get' : function() {
+                return (new XMLSerializer).serializeToString(this)
+              }
+            })
+          })
+        }
+
+        RegExp.escape = function(s) {
+          return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+        }
+
+      }()
+
+    </script>
+
+  </body>
+</html>
