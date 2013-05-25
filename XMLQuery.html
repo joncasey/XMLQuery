@@ -109,14 +109,13 @@
               ol.innerHTML = ''
 
               if (input.checked) {
-                var xml = xmlFiles[parseFloat(input.value)]
+                var xml   = xmlFiles[parseFloat(input.value)]
                   , nodes = []
                   , node
 
                 if (xpath) {
                   var xr = xml.evaluate(query, xml, null, 0, null)
                   while (node = xr.iterateNext()) nodes.push(node)
-
                 } else {
                   nodes = xml.querySelectorAll(query)
                 }
@@ -205,15 +204,13 @@
           selector.addEventListener(type, listener, false)
         }
 
-        if (this.Document && this.Node) {
-          [Document.prototype, Node.prototype].forEach(function(prototype) {
-            Object.defineProperty(prototype, 'xml', {
-              'get' : function() {
-                return (new XMLSerializer).serializeToString(this)
-              }
-            })
+        [window.Document, window.Node].forEach(function(_) {
+          _ && Object.defineProperty(_.prototype, 'xml', {
+            'get' : function() {
+              return (new XMLSerializer).serializeToString(this)
+            }
           })
-        }
+        })
 
         RegExp.escape = function(s) {
           return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
