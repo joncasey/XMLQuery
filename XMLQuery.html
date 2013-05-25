@@ -57,6 +57,7 @@
           , fileButton = document.querySelector('input[value="Files"]')
           , fileInput  = document.querySelector('input[type="file"]')
           , textInput  = document.querySelector('input[type="search"]')
+          , header     = document.querySelector('header')
           , xmlFiles   = []
         template.querySelector('ol').innerHTML = ''
 
@@ -187,7 +188,6 @@
           }
         })
 
-        var header = document.querySelector('header')
         on('scroll', window, function() {
           var x = document.body.scrollTop
                || document.documentElement.scrollTop
