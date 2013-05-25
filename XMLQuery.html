@@ -45,7 +45,6 @@
       </li>
     </ol>
 
-    <pre id="log"></pre>
 
     <script>
 
@@ -68,7 +67,7 @@
           forEach.call(this.files, function(file) {
             if (file.type != 'text/xml') return
             var reader = new FileReader
-            reader.onerror = function() { log(this.error.name) }
+            reader.onerror = function() { throw new Error(this.error.name) }
             reader.onloadend = function() {
               var xml  = (new DOMParser).parseFromString(this.result, 'text/xml')
                 , org  = xml.querySelector('org')
@@ -194,12 +193,6 @@
           if (x) header.classList.add('scroll')
           else header.classList.remove('scroll')
         })
-
-        function log(text) {
-          document.getElementById('log')
-            .appendChild(document.createElement('div'))
-            .appendChild(document.createTextNode(text))
-        }
 
         function on(type, selector, listener) {
           if (arguments.length == 2) {
