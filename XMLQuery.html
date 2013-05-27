@@ -123,7 +123,7 @@
             }
 
             function add(node) {
-              var text = node.xml
+              var text = (new XMLSerializer).serializeToString(node)
                 , attr = /\[([\w-_]+)/g
                 , x = text.indexOf('>')
               if (x > -1) text = text.substring(0, x + 1)
@@ -210,14 +210,6 @@
         function parseXML(xmlString) {
           return (new DOMParser).parseFromString(xmlString, 'text/xml')
         }
-
-        [Document, Node].forEach(function(_) {
-          Object.defineProperty(_.prototype, 'xml', {
-            'get' : function() {
-              return (new XMLSerializer).serializeToString(this)
-            }
-          })
-        })
 
         RegExp.escape = function(s) {
           return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
