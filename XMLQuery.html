@@ -94,6 +94,7 @@
         goButton.addEventListener('click', function(e) {
           var query = textInput.value
             , xpath = /^\//.test(query)
+            , start = new Date
           if (!query.length) return
 
           forEach.call(document.querySelectorAll('input[type="checkbox"]'), function(input) {
@@ -154,6 +155,8 @@
 
             }
           })
+
+          console.log(new Date - start)
         })
 
         document.addEventListener('contextmenu', function(e) {
