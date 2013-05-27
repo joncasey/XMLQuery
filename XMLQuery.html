@@ -74,8 +74,8 @@
             reader.onerror = function() { throw new Error(this.error.name) }
             reader.onloadend = function() {
               var xml  = parseXML(this.result)
-                , org  = xml.querySelector('org')
                 , li   = template.cloneNode(true)
+                , org  = xml.querySelector('org')
                 , name = org ? org.getAttribute('title') : file.name
               
               li.querySelector('span').textContent = name
@@ -120,40 +120,40 @@
 
               ins.textContent = found
               li.classList[found ? 'remove' : 'add']('zero')
+            }
 
-              function add(node) {
-                var text = node.xml
-                  , attr = /\[([\w-_]+)/g
-                  , x = text.indexOf('>')
-                if (x > -1) text = text.substring(0, x + 1)
-                text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            function add(node) {
+              var text = node.xml
+                , attr = /\[([\w-_]+)/g
+                , x = text.indexOf('>')
+              if (x > -1) text = text.substring(0, x + 1)
+              text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-                if (!xpath) {
-                  text = text
-                    .replace(/ xmlns="http:\/\/myschemas\.com\/(caml\/manifest|CAML(ite)?)\/2004"/g, '')
-                    .replace(/ xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance"/g, '')
-                    .replace(/ xsi:schemaLocation="[^"]+"/g, '')
+              if (!xpath) {
+                text = text
+                  .replace(/ xmlns="http:\/\/myschemas\.com\/(caml\/manifest|CAML(ite)?)\/2004"/g, '')
+                  .replace(/ xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance"/g, '')
+                  .replace(/ xsi:schemaLocation="[^"]+"/g, '')
 
-                  // todo: better pattern match
-                  if (attr.test(query)) {
-                    query.replace(attr, function(_, w) {
-                      var re = new RegExp('('+ RegExp.escape(w) +')="([^"]+)"', 'g')
-                      text = text.replace(re, function(_, p, v) {
-                        return '<i>'+ p +'</i>="<u>'+ v +'</u>"'
-                      })
+                // todo: better pattern match
+                if (attr.test(query)) {
+                  query.replace(attr, function(_, w) {
+                    var re = new RegExp('('+ RegExp.escape(w) +')="([^"]+)"', 'g')
+                    text = text.replace(re, function(_, p, v) {
+                      return '<i>'+ p +'</i>="<u>'+ v +'</u>"'
                     })
-                  } else {
-                    text = text.replace(query, function(s) {
-                      return '<u>'+ s +'</u>'
-                    })
-                  }
+                  })
+                } else {
+                  text = text.replace(query, function(s) {
+                    return '<u>'+ s +'</u>'
+                  })
                 }
-
-                ol.appendChild(document.createElement('li')).innerHTML = text
-                found++
               }
 
+              ol.appendChild(document.createElement('li')).innerHTML = text
+              found++
             }
+
           })
 
           console.log(new Date - start)
