@@ -96,67 +96,65 @@
           var query = textInput.value
             , xpath = /^\//.test(query)
           if (!query.length) return
-          forEach.call(
-            document.querySelectorAll('input[type="checkbox"]')
-          , function(input) {
-              var label = input.parentNode
-                , li    = label.parentNode
-                , ol    = li.querySelector('ol')
-                , ins   = li.querySelector('ins')
 
-              // dump previous results
-              li.classList.add('zero')
-              ins.textContent = 0
-              ol.innerHTML = ''
+          forEach.call(document.querySelectorAll('input[type="checkbox"]'), function(input) {
+            var label = input.parentNode
+              , li    = label.parentNode
+              , ol    = li.querySelector('ol')
+              , ins   = li.querySelector('ins')
+              , found = 0
 
-              if (input.checked) {
-                var xml   = xmlFiles[parseFloat(input.value)]
-                  , nodes = []
-                  , node
+            li.classList.add('zero')
+            ins.textContent = 0
+            ol.innerHTML = ''
 
-                if (xpath) {
-                  var xr = xml.evaluate(query, xml, null, 0, null)
-                  while (node = xr.iterateNext()) nodes.push(node)
-                } else {
-                  nodes = xml.querySelectorAll(query)
+            if (input.checked) {
+              var xml = xmlFiles[parseFloat(input.value)]
+
+              if (xpath) {
+                var node, xr = xml.evaluate(query, xml, null, 0, null)
+                while (node = xr.iterateNext()) add(node)
+              } else {
+                forEach.call(xml.querySelectorAll(query), add)
+              }
+
+              ins.textContent = found
+              li.classList[found ? 'remove' : 'add']('zero')
+
+              function add(node) {
+                var text = node.xml
+                  , attr = /\[([\w-_]+)/g
+                  , x = text.indexOf('>')
+                if (x > -1) text = text.substring(0, x + 1)
+                text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+                if (!xpath) {
+                  text = text
+                    .replace(/ xmlns="http:\/\/myschemas\.com\/(caml\/manifest|CAML(ite)?)\/2004"/g, '')
+                    .replace(/ xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance"/g, '')
+                    .replace(/ xsi:schemaLocation="[^"]+"/g, '')
+
+                  // todo: better pattern match
+                  if (attr.test(query)) {
+                    query.replace(attr, function(_, w) {
+                      var re = new RegExp('('+ RegExp.escape(w) +')="([^"]+)"', 'g')
+                      text = text.replace(re, function(_, p, v) {
+                        return '<i>'+ p +'</i>="<u>'+ v +'</u>"'
+                      })
+                    })
+                  } else {
+                    text = text.replace(query, function(s) {
+                      return '<u>'+ s +'</u>'
+                    })
+                  }
                 }
 
-                forEach.call(nodes, function(node) {
-                  var text = node.xml
-                    , attr = /\[([\w-_]+)/g
-                    , x = text.indexOf('>')
-                  if (x > -1) text = text.substring(0, x + 1)
-                  text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-                  if (!xpath) {
-                    text = text.replace(/ xmlns="http:\/\/myschemas\.com\/(caml\/manifest|CAML(ite)?)\/2004"/g, '')
-                               .replace(/ xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance"/g, '')
-                               .replace(/ xsi:schemaLocation="[^"]+"/g, '')
-
-                    // todo: better pattern match
-                    if (attr.test(query)) {
-                      query.replace(attr, function(_, w) {
-                        var re = new RegExp('('+ RegExp.escape(w) +')="([^"]+)"', 'g')
-                        text = text.replace(re, function(_, p, v) {
-                          return '<i>'+ p +'</i>="<u>'+ v +'</u>"'
-                        })
-                      })
-                    } else {
-                      text = text.replace(query, function(s) {
-                        return '<u>'+ s +'</u>'
-                      })
-                    }
-                  }
-
-                  ol.appendChild(document.createElement('li')).innerHTML = text
-                  //.appendChild(document.createTextNode(text))
-                })
-
-                ins.textContent = nodes.length
-                li.classList[nodes.length ? 'remove' : 'add']('zero')
+                ol.appendChild(document.createElement('li')).innerHTML = text
+                found++
               }
+
             }
-          )
+          })
         })
 
         document.addEventListener('contextmenu', function(e) {
