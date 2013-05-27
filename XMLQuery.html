@@ -58,9 +58,14 @@
           , textInput  = document.querySelector('input[type="search"]')
           , header     = document.querySelector('header')
           , xmlFiles   = []
+
         template.querySelector('ol').innerHTML = ''
 
-        on('change', fileInput, function(e) {
+        fileButton.addEventListener('click', function(e) {
+          fileInput.click()
+        })
+
+        fileInput.addEventListener('change', function(e) {
           if (this.files.length == 0) return // don't change
           filesList.innerHTML = ''
           xmlFiles.length = 0
@@ -83,15 +88,11 @@
           })
         })
 
-        on('keydown', textInput, function(e) {
+        textInput.addEventListener('keydown', function(e) {
           if (e.which == 13) goButton.click()
         })
 
-        on('click', fileButton, function(e) {
-          fileInput.click()
-        })
-
-        on('click', goButton, function(e) {
+        goButton.addEventListener('click', function(e) {
           var query = textInput.value
             , xpath = /^\//.test(query)
           if (!query.length) return
@@ -158,7 +159,7 @@
           )
         })
 
-        on('contextmenu', function(e) {
+        document.addEventListener('contextmenu', function(e) {
           var p = e.target
           while (p) {
             if (p.type == 'checkbox') {
@@ -186,22 +187,14 @@
           }
         })
 
-        on('scroll', window, function() {
+        window.addEventListener('scroll', function() {
           var x = document.body.scrollTop
                || document.documentElement.scrollTop
           if (x) header.classList.add('scroll')
           else header.classList.remove('scroll')
         })
 
-        function on(type, selector, listener) {
-          if (arguments.length == 2) {
-            listener = selector
-            selector = document
           }
-          if (typeof selector == 'string') {
-            selector = document.querySelector(selector)
-          }
-          selector.addEventListener(type, listener, false)
         }
 
         [window.Document, window.Node].forEach(function(_) {
