@@ -74,7 +74,7 @@
             var reader = new FileReader
             reader.onerror = function() { throw new Error(this.error.name) }
             reader.onloadend = function() {
-              var xml  = (new DOMParser).parseFromString(this.result, 'text/xml')
+              var xml  = parseXML(this.result)
                 , org  = xml.querySelector('org')
                 , li   = template.cloneNode(true)
                 , name = org ? org.getAttribute('title') : file.name
@@ -190,7 +190,20 @@
           header.classList[x ? 'add' : 'remove']('scroll')
         })
 
+        function fetch(url, fn) {
+          var xhr = new XMLHttpRequest()
+          xhr.open('GET', url, true)
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+              fn(xhr.responseText, xhr)
+              xhr = null
+            }
           }
+          xhr.send(+new Date)
+        }
+
+        function parseXML(xmlString) {
+          return (new DOMParser).parseFromString(xmlString, 'text/xml')
         }
 
         [Document, Node].forEach(function(_) {
