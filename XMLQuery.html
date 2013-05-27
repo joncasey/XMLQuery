@@ -188,17 +188,15 @@
         })
 
         window.addEventListener('scroll', function() {
-          var x = document.body.scrollTop
-               || document.documentElement.scrollTop
-          if (x) header.classList.add('scroll')
-          else header.classList.remove('scroll')
+          var x = document.body.scrollTop || document.documentElement.scrollTop
+          header.classList[x ? 'add' : 'remove']('scroll')
         })
 
           }
         }
 
-        [window.Document, window.Node].forEach(function(_) {
-          _ && Object.defineProperty(_.prototype, 'xml', {
+        [Document, Node].forEach(function(_) {
+          Object.defineProperty(_.prototype, 'xml', {
             'get' : function() {
               return (new XMLSerializer).serializeToString(this)
             }
