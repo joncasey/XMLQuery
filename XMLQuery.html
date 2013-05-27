@@ -45,7 +45,6 @@
       </li>
     </ol>
 
-
     <script>
 
       document.querySelector && !function() {
@@ -160,6 +159,7 @@
         document.addEventListener('contextmenu', function(e) {
           var p = e.target
           while (p) {
+
             if (p.type == 'checkbox') {
               var checked = !p.checked
               forEach.call(
@@ -168,6 +168,7 @@
               e.preventDefault()
               return false
             }
+
             if (p.classList && p.classList.contains('file')) {
               p.classList.toggle('collapsed')
               if (e.ctrlKey) {
@@ -181,6 +182,7 @@
               }
               e.preventDefault()
             }
+
             p = p.parentNode
           }
         })
