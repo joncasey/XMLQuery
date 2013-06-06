@@ -35,7 +35,7 @@
         <label>
           <input type="checkbox" checked>
           <ins>0</ins>
-          <span class="title">This page is designed to run on IE10 or greater. Right-click here to expand results.</span>
+          <span class="title">This page is designed to run on IE10 or greater. Right-click here to expand results. <a href="?x=out/.all.xml">?x=</a></span>
         </label>
         <ol class="results">
           <li>&lt;step <i>one</i>="<u>Click the Files button, and select several local XML files.</u>"&gt;</li>
@@ -214,6 +214,42 @@
         RegExp.escape = function(s) {
           return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
         }
+
+        // "auto-load" support
+
+        var args = {}
+        location.search.replace(/[?&]([^=]+)=([^&$]+)/g, function(_, name, value) {
+          args[name] = decodeURIComponent(value)
+        })
+
+        args.x && function() {
+          var base = args.x.split(/[\\\/]/).slice(0, -1)
+          fetch(args.x, function(data) {
+            if (!data) throw new Error('Failed to fetch("'+ args.x +'")')
+
+            filesList.innerHTML = ''
+            xmlFiles.length = 0
+
+            forEach.call(parseXML(data).querySelectorAll('f[name]'), function(f) {
+              var name = f.getAttribute('name')
+                , text = f.getAttribute('title')
+                , file = base.concat(name).join('/')
+
+              fetch(file, function(data) {
+                if (!data) throw new Error('Failed to fetch("'+ file +'")')
+
+                var xml = parseXML(data)
+                  , li  = template.cloneNode(true)
+                li.querySelector('span').textContent = text || file
+                li.querySelector('input').setAttribute('value', xmlFiles.length)
+                filesList.appendChild(li).classList.remove('template')
+                xmlFiles.push(xml)
+
+              })
+            })
+
+          })
+        }()
 
       }()
 
