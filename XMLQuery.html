@@ -47,7 +47,7 @@
 
     <script>
 
-      document.querySelector && !function() {
+      document.querySelector && function() {
         var forEach    = Array.prototype.forEach
           , filesList  = document.querySelector('ol')
           , template   = document.querySelector('ol li').cloneNode(true)
@@ -196,7 +196,9 @@
         })
 
         function fetch(url, fn) {
-          var xhr = new XMLHttpRequest()
+          var xhr = window.ActiveXObject !== undefined
+                  ? new ActiveXObject('Msxml2.XMLHTTP')
+                  : new XMLHttpRequest()
           xhr.open('GET', url, true)
           xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
