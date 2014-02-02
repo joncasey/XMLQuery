@@ -49,14 +49,14 @@
 
       document.querySelector && function() {
         var forEach    = Array.prototype.forEach
-          , filesList  = document.querySelector('ol')
-          , template   = document.querySelector('ol li').cloneNode(true)
-          , goButton   = document.querySelector('input[value="Go"]')
-          , fileButton = document.querySelector('input[value="Files"]')
-          , fileInput  = document.querySelector('input[type="file"]')
-          , textInput  = document.querySelector('input[type="search"]')
-          , header     = document.querySelector('header')
-          , xmlFiles   = []
+        var filesList  = document.querySelector('ol')
+        var template   = document.querySelector('ol li').cloneNode(true)
+        var goButton   = document.querySelector('input[value="Go"]')
+        var fileButton = document.querySelector('input[value="Files"]')
+        var fileInput  = document.querySelector('input[type="file"]')
+        var textInput  = document.querySelector('input[type="search"]')
+        var header     = document.querySelector('header')
+        var xmlFiles   = []
 
         template.querySelector('ol').innerHTML = ''
 
@@ -73,11 +73,11 @@
             var reader = new FileReader
             reader.onerror = function() { throw new Error(this.error.name) }
             reader.onloadend = function() {
-              var xml  = parseXML(this.result)
-                , li   = template.cloneNode(true)
-                , org  = xml.querySelector('org')
-                , name = org ? org.getAttribute('title') : file.name
-              
+              var xml = parseXML(this.result)
+              var li = template.cloneNode(true)
+              var org = xml.querySelector('org')
+              var name = org ? org.getAttribute('title') : file.name
+
               li.querySelector('span').textContent = name
               li.querySelector('input').setAttribute('value', xmlFiles.length)
               filesList.appendChild(li).classList.remove('template')
@@ -93,16 +93,16 @@
 
         goButton.addEventListener('click', function(e) {
           var query = textInput.value
-            , xpath = /^\//.test(query)
-            , start = new Date
+          var xpath = /^\//.test(query)
+          var start = new Date
           if (!query.length) return
 
           forEach.call(document.querySelectorAll('input[type="checkbox"]'), function(input) {
             var label = input.parentNode
-              , li    = label.parentNode
-              , ol    = li.querySelector('ol')
-              , ins   = li.querySelector('ins')
-              , found = 0
+            var li    = label.parentNode
+            var ol    = li.querySelector('ol')
+            var ins   = li.querySelector('ins')
+            var found = 0
 
             li.classList.add('zero')
             ins.textContent = 0
@@ -124,8 +124,8 @@
 
             function add(node) {
               var text = (new XMLSerializer).serializeToString(node)
-                , attr = /\[([\w-_]+)/g
-                , x = text.indexOf('>')
+              var attr = /\[([\w-_]+)/g
+              var x = text.indexOf('>')
               if (x > -1) text = text.substring(0, x + 1)
               text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -166,8 +166,8 @@
             if (p.type == 'checkbox') {
               var checked = !p.checked
               forEach.call(
-                document.querySelectorAll('input[type="checkbox"]')
-              , function(checkbox) { checkbox.checked = checked })
+                document.querySelectorAll('input[type="checkbox"]'),
+                function(checkbox) { checkbox.checked = checked })
               e.preventDefault()
               return false
             }
@@ -177,8 +177,8 @@
               if (e.ctrlKey) {
                 var isCollapsed = p.classList.contains('collapsed')
                 forEach.call(
-                  document.querySelectorAll('.file')
-                , p.classList.contains('collapsed')
+                  document.querySelectorAll('.file'),
+                  p.classList.contains('collapsed')
                   ? function(li) { li.classList.add('collapsed') }
                   : function(li) { li.classList.remove('collapsed') }
                 )
@@ -234,14 +234,14 @@
 
             forEach.call(parseXML(data).querySelectorAll('f[name]'), function(f) {
               var name = f.getAttribute('name')
-                , text = f.getAttribute('title')
-                , file = base.concat(name).join('/')
+              var text = f.getAttribute('title')
+              var file = base.concat(name).join('/')
 
               fetch(file, function(data) {
                 if (!data) throw new Error('Failed to fetch("'+ file +'")')
 
                 var xml = parseXML(data)
-                  , li  = template.cloneNode(true)
+                var li  = template.cloneNode(true)
                 li.querySelector('span').textContent = text || file
                 li.querySelector('input').setAttribute('value', xmlFiles.length)
                 filesList.appendChild(li).classList.remove('template')
